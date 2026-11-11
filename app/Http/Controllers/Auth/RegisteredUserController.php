@@ -34,14 +34,18 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'userid' => ['required', 'string', 'max:15', 'alpha_dash:ascii', 'unique:'.User::class],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'cell_number' => ['required', 'string', 'max:20'],
             'gender' => ['required', new Enum(Gender::class)],
+        ], [
+            'userid.unique' => __('This User ID is already taken. Please choose another one.'),
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'userid' => $request->userid,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'cell_number' => $request->cell_number,

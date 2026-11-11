@@ -12,13 +12,14 @@
             <div class="p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        @if ($picture->user->id === auth()->id())
-                            <p class="font-medium text-gray-900 dark:text-gray-100">{{ $picture->user->name }}</p>
-                        @else
-                            <a href="{{ route('messages.show', $picture->user) }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
-                                {{ $picture->user->name }}
+                        <a href="{{ route('profiles.show', $picture->user) }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                            {{ $picture->user->userid }}
+                        </a>
+                        @unless ($picture->user->id === auth()->id())
+                            <a href="{{ route('messages.show', $picture->user) }}" class="ms-2 text-xs text-gray-600 dark:text-gray-400 underline">
+                                {{ __('Send message') }}
                             </a>
-                        @endif
+                        @endunless
                         @if ($picture->caption)
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ $picture->caption }}</p>
                         @endif
@@ -40,7 +41,7 @@
             <div class="space-y-3 mb-4">
                 @forelse ($picture->comments as $comment)
                     <div class="text-sm">
-                        <span class="font-medium text-gray-900 dark:text-gray-100">{{ $comment->user->name }}</span>
+                        <a href="{{ route('profiles.show', $comment->user) }}" class="font-medium text-gray-900 dark:text-gray-100 hover:underline">{{ $comment->user->userid }}</a>
                         <span class="text-gray-700 dark:text-gray-300">{{ $comment->body }}</span>
                     </div>
                 @empty

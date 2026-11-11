@@ -35,34 +35,15 @@ class PictureTest extends TestCase
         $this->assertSame($older->id, $pictures->last()->id);
     }
 
-    public function test_feed_can_be_filtered_by_gender(): void
+    public function test_feed_ignores_filter_parameters(): void
     {
         $user = User::factory()->create();
-        $male = User::factory()->create(['gender' => Gender::Male]);
-        $female = User::factory()->create(['gender' => Gender::Female]);
-        $malePicture = Picture::factory()->for($male)->create();
-        Picture::factory()->for($female)->create();
+        Picture::factory()->for(User::factory()->create(['gender' => Gender::Male]))->create();
+        Picture::factory()->for(User::factory()->create(['gender' => Gender::Female]))->create();
 
         $response = $this->actingAs($user)->get(route('dashboard', ['gender' => 'male']));
 
-        $pictures = $response->viewData('pictures');
-        $this->assertCount(1, $pictures);
-        $this->assertTrue($pictures->first()->is($malePicture));
-    }
-
-    public function test_feed_can_be_searched_by_profile_name(): void
-    {
-        $user = User::factory()->create();
-        $match = User::factory()->create(['name' => 'Alice Wonderland']);
-        $noMatch = User::factory()->create(['name' => 'Bob Builder']);
-        $matchPicture = Picture::factory()->for($match)->create();
-        Picture::factory()->for($noMatch)->create();
-
-        $response = $this->actingAs($user)->get(route('dashboard', ['search' => 'Alice']));
-
-        $pictures = $response->viewData('pictures');
-        $this->assertCount(1, $pictures);
-        $this->assertTrue($pictures->first()->is($matchPicture));
+        $this->assertCount(2, $response->viewData('pictures'));
     }
 
     public function test_user_can_upload_a_picture(): void
@@ -111,5 +92,46 @@ class PictureTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Nice shot!');
+    }
+
+    public function test_user_can_delete_their_own_picture(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $picture = Picture::factory()->for($user)->create(['path' => 'pictures/photo.jpg']);
+        Storage::disk('public')->put($picture->path, 'image');
+
+        $response = $this->actingAs($user)
+            ->from(route('profile.pictures'))
+            ->delete(route('pictures.destroy', $picture));
+
+        $response->assertRedirect(route('profile.pictures'));
+        $this->assertModelMissing($picture);
+        Storage::disk('public')->assertMissing('pictures/photo.jpg');
+    }
+
+    public function test_deleting_the_profile_picture_clears_it_from_the_user(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $picture = Picture::factory()->for($user)->create();
+        $user->update(['profile_picture_id' => $picture->id]);
+
+        $this->actingAs($user)->delete(route('pictures.destroy', $picture));
+
+        $this->assertNull($user->fresh()->profile_picture_id);
+    }
+
+    public function test_user_cannot_delete_another_users_picture(): void
+    {
+        $user = User::factory()->create();
+        $picture = Picture::factory()->create();
+
+        $response = $this->actingAs($user)->delete(route('pictures.destroy', $picture));
+
+        $response->assertForbidden();
+        $this->assertModelExists($picture);
     }
 }

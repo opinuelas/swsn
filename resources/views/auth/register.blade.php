@@ -9,9 +9,17 @@
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
+        <!-- User ID -->
+        <div class="mt-4">
+            <x-input-label for="userid" :value="__('User ID')" />
+            <x-text-input id="userid" class="block mt-1 w-full" type="text" name="userid" maxlength="15" :value="old('userid')" required />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Up to 15 letters, numbers, dashes or underscores. This is how other users see you.') }}</p>
+            <x-input-error :messages="$errors->get('userid')" class="mt-2" />
+        </div>
+
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" :value="__('Email (used to log in only)')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>

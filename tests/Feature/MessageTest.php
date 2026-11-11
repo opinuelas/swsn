@@ -37,13 +37,13 @@ class MessageTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_user_can_start_a_new_conversation_by_email(): void
+    public function test_user_can_start_a_new_conversation_by_userid(): void
     {
         $sender = User::factory()->create();
         $recipient = User::factory()->create();
 
         $response = $this->actingAs($sender)
-            ->post(route('messages.send'), ['to' => $recipient->email, 'body' => 'Hi there!']);
+            ->post(route('messages.send'), ['to' => $recipient->userid, 'body' => 'Hi there!']);
 
         $response->assertRedirect(route('messages.show', $recipient));
         $this->assertDatabaseHas('messages', [
@@ -53,12 +53,12 @@ class MessageTest extends TestCase
         ]);
     }
 
-    public function test_new_conversation_requires_an_existing_email(): void
+    public function test_new_conversation_requires_an_existing_userid(): void
     {
         $sender = User::factory()->create();
 
         $response = $this->actingAs($sender)
-            ->post(route('messages.send'), ['to' => 'nobody@example.com', 'body' => 'Hi there!']);
+            ->post(route('messages.send'), ['to' => 'nobody', 'body' => 'Hi there!']);
 
         $response->assertSessionHasErrors('to');
     }
@@ -68,7 +68,18 @@ class MessageTest extends TestCase
         $sender = User::factory()->create();
 
         $response = $this->actingAs($sender)
-            ->post(route('messages.send'), ['to' => $sender->email, 'body' => 'Hi there!']);
+            ->post(route('messages.send'), ['to' => $sender->userid, 'body' => 'Hi there!']);
+
+        $response->assertSessionHasErrors('to');
+    }
+
+    public function test_new_conversation_cannot_be_started_by_email(): void
+    {
+        $sender = User::factory()->create();
+        $recipient = User::factory()->create();
+
+        $response = $this->actingAs($sender)
+            ->post(route('messages.send'), ['to' => $recipient->email, 'body' => 'Hi there!']);
 
         $response->assertSessionHasErrors('to');
     }

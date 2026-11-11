@@ -5,12 +5,12 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Upload pictures and choose one as your profile picture.') }}
+            {{ __('Upload pictures, choose one as your profile picture, or delete the ones you no longer want.') }}
         </p>
     </header>
 
     <div class="mt-6 flex items-center gap-4">
-        <img src="{{ $user->profilePicture ? $user->profilePicture->url() : asset('images/default-avatar.svg') }}"
+        <img src="{{ $user->avatarUrl() }}"
              alt="{{ __('Profile picture') }}"
              class="h-20 w-20 rounded-full object-cover bg-gray-200 dark:bg-gray-700">
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('Current profile picture') }}</p>
@@ -18,6 +18,10 @@
 
     @if (session('status') === 'picture-uploaded')
         <p class="mt-4 text-sm font-medium text-green-600 dark:text-green-400">{{ __('Picture uploaded.') }}</p>
+    @endif
+
+    @if (session('status') === 'picture-deleted')
+        <p class="mt-4 text-sm font-medium text-green-600 dark:text-green-400">{{ __('Picture deleted.') }}</p>
     @endif
 
     @if (session('status') === 'profile-picture-updated')
@@ -61,6 +65,17 @@
                             <img src="{{ $picture->url() }}" alt="{{ $picture->caption }}"
                                  class="aspect-square w-full object-cover rounded-md">
                         </a>
+
+                        <form method="post" action="{{ route('pictures.destroy', $picture) }}"
+                              onsubmit="return confirm(@js(__('Delete this picture? This cannot be undone.')))"
+                              class="absolute top-1 left-1">
+                            @csrf
+                            @method('delete')
+                            <button type="submit" title="{{ __('Delete picture') }}"
+                                    class="px-1.5 py-0.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded opacity-0 group-hover:opacity-100 focus:opacity-100 transition">
+                                {{ __('Delete') }}
+                            </button>
+                        </form>
 
                         @if ($user->profile_picture_id === $picture->id)
                             <span class="absolute top-1 right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-indigo-600 rounded">

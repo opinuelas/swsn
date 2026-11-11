@@ -19,6 +19,26 @@ class ProfileController extends Controller
     {
         return view('profile.edit', [
             'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Display the user's password change form.
+     */
+    public function password(Request $request): View
+    {
+        return view('profile.password', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Display the user's picture management page.
+     */
+    public function pictures(Request $request): View
+    {
+        return view('profile.pictures', [
+            'user' => $request->user()->load('profilePicture'),
             'pictures' => $request->user()->pictures()->latest()->get(),
         ]);
     }
@@ -48,7 +68,7 @@ class ProfileController extends Controller
 
         $request->user()->update(['profile_picture_id' => $picture->id]);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-picture-updated');
+        return Redirect::route('profile.pictures')->with('status', 'profile-picture-updated');
     }
 
     /**

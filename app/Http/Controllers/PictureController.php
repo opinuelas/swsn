@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Gender;
 use App\Http\Requests\StorePictureRequest;
 use App\Models\Picture;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PictureController extends Controller
@@ -14,42 +14,15 @@ class PictureController extends Controller
     /**
      * Display the main feed of the most recently uploaded pictures.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
         $pictures = Picture::query()
             ->with(['user', 'likes', 'comments'])
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->whereHas('user', function ($user) use ($request) {
-                    $user->where('name', 'like', '%'.$request->string('search').'%');
-                });
-            })
-            ->when($request->filled('gender'), function ($query) use ($request) {
-                $query->whereHas('user', function ($user) use ($request) {
-                    $user->where('gender', $request->string('gender'));
-                });
-            })
-            ->when($request->filled('country'), function ($query) use ($request) {
-                $query->whereHas('user', function ($user) use ($request) {
-                    $user->where('country', $request->string('country'));
-                });
-            })
-            ->when($request->filled('state'), function ($query) use ($request) {
-                $query->whereHas('user', function ($user) use ($request) {
-                    $user->where('state', $request->string('state'));
-                });
-            })
-            ->when($request->filled('city'), function ($query) use ($request) {
-                $query->whereHas('user', function ($user) use ($request) {
-                    $user->where('city', $request->string('city'));
-                });
-            })
             ->latest()
-            ->paginate(50)
-            ->withQueryString();
+            ->paginate(50);
 
         return view('pictures.index', [
             'pictures' => $pictures,
-            'genders' => Gender::cases(),
         ]);
     }
 
@@ -82,5 +55,23 @@ class PictureController extends Controller
         }
 
         return back()->with('status', 'picture-uploaded');
+    }
+
+    /**
+     * Delete one of the authenticated user's own pictures.
+     */
+    public function destroy(Request $request, Picture $picture): RedirectResponse
+    {
+        abort_unless($picture->user_id === $request->user()->id, 403);
+
+        if ($request->user()->profile_picture_id === $picture->id) {
+            $request->user()->update(['profile_picture_id' => null]);
+        }
+
+        Storage::disk('public')->delete($picture->path);
+
+        $picture->delete();
+
+        return back()->with('status', 'picture-deleted');
     }
 }

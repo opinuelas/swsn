@@ -8,6 +8,8 @@
         .($active
             ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300'
             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700');
+
+    $isOwnPublicProfile = request()->routeIs('profiles.show') && request()->route('user')?->is(auth()->user());
 @endphp
 
 <nav class="space-y-1 bg-white dark:bg-gray-800 shadow sm:rounded-lg p-3">
@@ -15,8 +17,28 @@
         {{ __('New Pictures') }}
     </a>
 
+    <a href="{{ route('profiles.index') }}" class="{{ $linkClasses(request()->routeIs('profiles.index')) }}">
+        {{ __('Search Profiles') }}
+    </a>
+
+    <a href="{{ route('profiles.show', auth()->user()) }}" class="{{ $linkClasses($isOwnPublicProfile) }}">
+        {{ __('Public Profile') }}
+    </a>
+
     <a href="{{ route('profile.edit') }}" class="{{ $linkClasses(request()->routeIs('profile.edit')) }}">
         {{ __('My Profile') }}
+    </a>
+
+    <a href="{{ route('profile.pictures') }}" class="{{ $linkClasses(request()->routeIs('profile.pictures')) }}">
+        {{ __('My Pictures') }}
+    </a>
+
+    <a href="{{ route('profile.password') }}" class="{{ $linkClasses(request()->routeIs('profile.password')) }}">
+        {{ __('Password Change') }}
+    </a>
+
+    <a href="{{ route('profiles.visitors') }}" class="{{ $linkClasses(request()->routeIs('profiles.visitors')) }}">
+        {{ __('Who Visited Me') }}
     </a>
 
     <a href="{{ route('messages.index') }}" class="{{ $linkClasses(request()->routeIs('messages.*')) }} justify-between">

@@ -27,9 +27,9 @@ class SendMessageRequest extends FormRequest
             'to' => [
                 'required',
                 'string',
-                'email',
-                'exists:users,email',
-                Rule::notIn([$this->user()->email]),
+                'max:15',
+                'exists:users,userid',
+                Rule::notIn([$this->user()->userid]),
             ],
             'body' => ['required', 'string', 'max:2000'],
         ];
@@ -43,7 +43,7 @@ class SendMessageRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'to.exists' => 'No user was found with that email address.',
+            'to.exists' => 'No user was found with that User ID.',
             'to.not_in' => 'You cannot send a message to yourself.',
         ];
     }

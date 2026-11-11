@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'cell_number', 'gender', 'country', 'state', 'city', 'profile_picture_id'])]
+#[Fillable(['name', 'userid', 'email', 'password', 'cell_number', 'gender', 'country', 'state', 'city', 'physical_description', 'finding_preference', 'profile_picture_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -64,6 +64,32 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Visits other users made to this user's public profile.
+     *
+     * @return HasMany<ProfileVisit, $this>
+     */
+    public function profileVisits(): HasMany
+    {
+        return $this->hasMany(ProfileVisit::class, 'profile_user_id');
+    }
+
+    /**
+     * Get the location as a single "city, state, country" string.
+     */
+    public function location(): string
+    {
+        return collect([$this->city, $this->state, $this->country])->filter()->implode(', ');
+    }
+
+    /**
+     * Get the URL of the user's profile picture, or the default avatar.
+     */
+    public function avatarUrl(): string
+    {
+        return $this->profilePicture?->url() ?? asset('images/default-avatar.svg');
     }
 
     /**

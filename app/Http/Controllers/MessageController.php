@@ -108,11 +108,11 @@ class MessageController extends Controller
     }
 
     /**
-     * Start a new conversation by looking up the recipient by email.
+     * Start a new conversation by looking up the recipient by User ID.
      */
     public function send(SendMessageRequest $request): RedirectResponse
     {
-        $recipient = User::query()->where('email', $request->validated('to'))->firstOrFail();
+        $recipient = User::query()->where('userid', $request->validated('to'))->firstOrFail();
 
         Message::query()->create([
             'sender_id' => $request->user()->id,

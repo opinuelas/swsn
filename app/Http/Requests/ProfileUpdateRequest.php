@@ -20,6 +20,13 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'userid' => [
+                'required',
+                'string',
+                'max:15',
+                'alpha_dash:ascii',
+                Rule::unique(User::class)->ignore($this->user()->id),
+            ],
             'email' => [
                 'required',
                 'string',
@@ -33,6 +40,20 @@ class ProfileUpdateRequest extends FormRequest
             'country' => ['nullable', 'string', 'max:255'],
             'state' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'physical_description' => ['nullable', 'string', 'max:500'],
+            'finding_preference' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'userid.unique' => __('This User ID is already taken. Please choose another one.'),
         ];
     }
 }

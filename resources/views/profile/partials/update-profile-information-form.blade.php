@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __("Update your account's profile information. Your email is only used to log in and is never shown to other users.") }}
         </p>
     </header>
 
@@ -21,6 +21,13 @@
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        </div>
+
+        <div>
+            <x-input-label for="userid" :value="__('User ID')" />
+            <x-text-input id="userid" name="userid" type="text" maxlength="15" class="mt-1 block w-full" :value="old('userid', $user->userid)" required />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Up to 15 letters, numbers, dashes or underscores. This is how other users see you.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('userid')" />
         </div>
 
         <div>
@@ -79,6 +86,22 @@
             <x-input-label for="city" :value="__('City')" />
             <x-text-input id="city" name="city" type="text" class="mt-1 block w-full" :value="old('city', $user->city)" autocomplete="address-level2" />
             <x-input-error class="mt-2" :messages="$errors->get('city')" />
+        </div>
+
+        <div>
+            <x-input-label for="physical_description" :value="__('Physical Description')" />
+            <textarea id="physical_description" name="physical_description" rows="4" maxlength="500"
+                      class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('physical_description', $user->physical_description) }}</textarea>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Maximum 500 characters.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('physical_description')" />
+        </div>
+
+        <div>
+            <x-input-label for="finding_preference" :value="__('Finding Preference')" />
+            <textarea id="finding_preference" name="finding_preference" rows="4" maxlength="500"
+                      class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('finding_preference', $user->finding_preference) }}</textarea>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Maximum 500 characters.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('finding_preference')" />
         </div>
 
         <div class="flex items-center gap-4">

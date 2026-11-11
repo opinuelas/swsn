@@ -12,8 +12,8 @@
             @csrf
 
             <div>
-                <x-input-label for="to" :value="__('To (email address)')" />
-                <x-text-input id="to" name="to" type="email" class="mt-1 block w-full" :value="old('to')" placeholder="user@example.com" required />
+                <x-input-label for="to" :value="__('To (User ID)')" />
+                <x-text-input id="to" name="to" type="text" maxlength="15" class="mt-1 block w-full" :value="old('to', request('to'))" placeholder="{{ __('User ID') }}" required />
                 <x-input-error class="mt-2" :messages="$errors->get('to')" />
             </div>
 
@@ -32,7 +32,7 @@
         @forelse ($conversations as $conversation)
             <a href="{{ route('messages.show', $conversation->partner) }}" class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700">
                 <div class="min-w-0">
-                    <p class="font-medium text-gray-900 dark:text-gray-100">{{ $conversation->partner->name }}</p>
+                    <p class="font-medium text-gray-900 dark:text-gray-100">{{ $conversation->partner->userid }}</p>
                     <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
                         {{ $conversation->last_message?->body }}
                     </p>
@@ -46,7 +46,7 @@
             </a>
         @empty
             <p class="p-6 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('No conversations yet. Use the form above to message someone by email.') }}
+                {{ __('No conversations yet. Use the form above to message someone by their User ID.') }}
             </p>
         @endforelse
     </div>
